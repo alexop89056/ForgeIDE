@@ -11,8 +11,10 @@ import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import javafx.scene.image.Image;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.VBox;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.stream.Collectors;
@@ -26,13 +28,15 @@ public final class ForgeIdeWindow {
 
     public ForgeIdeWindow(Stage stage) {
         this.stage = stage;
+        stage.initStyle(StageStyle.UNDECORATED);
     }
 
     public void show() {
         BorderPane root = new BorderPane();
         root.getStyleClass().add("root-pane");
-        root.setTop(createMenuBar());
+        root.setTop(createTopBar());
         root.setLeft(explorer);
+        root.setRight(createAgentPanel());
         root.setCenter(tabs);
         root.setBottom(createStatusBar());
         tabs.newDocument();
@@ -49,6 +53,38 @@ public final class ForgeIdeWindow {
         });
         stage.show();
         tabs.current().ifPresent(editor -> editor.focusEditor());
+    }
+
+    private HBox createTopBar() {
+        Label title = new Label("ForgeIDE");
+        title.getStyleClass().add("window-title");
+        MenuBar menu = createMenuBar();
+        Button minimize = windowButton("—", e -> stage.setIconified(true));
+        Button maximize = windowButton("□", e -> stage.setMaximized(!stage.isMaximized()));
+        Button close = windowButton("×", e -> stage.close());
+        HBox bar = new HBox(title, menu, minimize, maximize, close);
+        bar.getStyleClass().add("window-bar");
+        HBox.setHgrow(menu, javafx.scene.layout.Priority.ALWAYS);
+        final double[] offset = new double[2];
+        bar.setOnMousePressed(e -> { offset[0] = e.getSceneX(); offset[1] = e.getSceneY(); });
+        bar.setOnMouseDragged(e -> { if (!stage.isMaximized()) { stage.setX(e.getScreenX() - offset[0]); stage.setY(e.getScreenY() - offset[1]); } });
+        return bar;
+    }
+
+    private Button windowButton(String text, javafx.event.EventHandler<javafx.event.ActionEvent> action) {
+        Button button = new Button(text); button.getStyleClass().add("window-button"); button.setOnAction(action); return button;
+    }
+
+    private VBox createAgentPanel() {
+        Label title = new Label("AGENT");
+        title.getStyleClass().add("agent-title");
+        Label placeholder = new Label("Agent panel\nComing soon");
+        placeholder.getStyleClass().add("agent-placeholder");
+        VBox panel = new VBox(12, title, placeholder);
+        panel.getStyleClass().add("agent-panel");
+        panel.setPrefWidth(285);
+        panel.setMinWidth(245);
+        return panel;
     }
 
     private MenuBar createMenuBar() {
