@@ -36,6 +36,11 @@
 .code-area .virtual-flow .scroll-bar .thumb, .styled-text-area .virtual-flow .scroll-bar .thumb { -fx-background-color: #405363; -fx-background-radius: 5; }
 .code-area .virtual-flow .scroll-bar .thumb:hover, .styled-text-area .virtual-flow .scroll-bar .thumb:hover { -fx-background-color: #587184; }
 .code-area .virtual-flow .scroll-bar .increment-button, .code-area .virtual-flow .scroll-bar .decrement-button, .styled-text-area .virtual-flow .scroll-bar .increment-button, .styled-text-area .virtual-flow .scroll-bar .decrement-button { -fx-padding: 0; -fx-background-color: transparent; }
+.virtual-flow .scroll-bar { -fx-background-color: #151d25; -fx-pref-width: 9; -fx-pref-height: 9; }
+.virtual-flow .scroll-bar .track { -fx-background-color: #151d25; }
+.virtual-flow .scroll-bar .thumb { -fx-background-color: #405363; -fx-background-radius: 5; }
+.virtual-flow .scroll-bar .thumb:hover { -fx-background-color: #587184; }
+.virtual-flow .scroll-bar .increment-button, .virtual-flow .scroll-bar .decrement-button { -fx-padding: 0; -fx-background-color: transparent; }
 .menu-bar { -fx-background-color: #18212b; -fx-padding: 4 10; }
 .menu-bar .label, .menu-item .label { -fx-text-fill: #d8e0e8; }
 .context-menu { -fx-background-color: #202b36; }
