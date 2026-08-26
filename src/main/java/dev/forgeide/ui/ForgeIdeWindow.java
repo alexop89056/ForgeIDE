@@ -135,6 +135,7 @@ public final class ForgeIdeWindow {
                 item("Find", new KeyCodeCombination(KeyCode.F, KeyCombination.SHORTCUT_DOWN), e -> find()),
                 item("Replace", new KeyCodeCombination(KeyCode.H, KeyCombination.SHORTCUT_DOWN), e -> replace()),
                 item("Go to line", new KeyCodeCombination(KeyCode.G, KeyCombination.SHORTCUT_DOWN), e -> gotoLine()));
+        edit.getItems().add(item("Command Palette", new KeyCodeCombination(KeyCode.P, KeyCombination.SHORTCUT_DOWN, KeyCombination.SHIFT_DOWN), e -> commandPalette()));
         edit.getItems().add(item("Go to symbol", new KeyCodeCombination(KeyCode.O, KeyCombination.SHORTCUT_DOWN, KeyCombination.SHIFT_DOWN), e -> gotoSymbol()));
         edit.getItems().add(item("Quick Open", new KeyCodeCombination(KeyCode.P, KeyCombination.SHORTCUT_DOWN), e -> quickOpen()));
 
@@ -186,6 +187,15 @@ public final class ForgeIdeWindow {
         TextInputDialog dialog = new TextInputDialog();
         dialog.setTitle("Find"); dialog.setHeaderText("Find text");
         dialog.showAndWait().ifPresent(query -> tabs.current().ifPresent(editor -> editor.find(query)));
+    }
+
+    private void commandPalette() {
+        List<String> commands = List.of("New file", "Open file", "Open folder", "Save", "Save all", "Find", "Replace", "Go to line", "Go to symbol", "Refresh explorer");
+        ChoiceDialog<String> dialog = new ChoiceDialog<>(commands.get(0), commands); dialog.setTitle("Command Palette"); dialog.setHeaderText("Select a command");
+        dialog.showAndWait().ifPresent(command -> { switch (command) {
+            case "New file" -> tabs.newDocument(); case "Open file" -> tabs.openDocument(stage); case "Open folder" -> explorer.openFolder(stage);
+            case "Save" -> tabs.saveCurrent(stage, false); case "Save all" -> tabs.saveAll(stage); case "Find" -> find(); case "Replace" -> replace(); case "Go to line" -> gotoLine(); case "Go to symbol" -> gotoSymbol(); case "Refresh explorer" -> explorer.refresh(); default -> { }
+        } });
     }
 
     private void replace() {
