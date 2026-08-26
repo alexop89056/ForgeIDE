@@ -6,6 +6,7 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.DirectoryChooser;
+import javafx.scene.control.TextInputDialog;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -29,6 +30,12 @@ public final class FileExplorer extends VBox {
         Button chooseFolder = new Button("Open folder…");
         chooseFolder.setMaxWidth(Double.MAX_VALUE);
         chooseFolder.setOnAction(event -> chooseFolder(getScene().getWindow()));
+        Button newFile = new Button("New file");
+        newFile.setMaxWidth(Double.MAX_VALUE);
+        newFile.setOnAction(event -> createFile());
+        Button refresh = new Button("Refresh");
+        refresh.setMaxWidth(Double.MAX_VALUE);
+        refresh.setOnAction(event -> refresh());
 
         tree.setShowRoot(true);
         tree.setCellFactory(view -> new TreeCell<>() {
@@ -44,7 +51,7 @@ public final class FileExplorer extends VBox {
             }
         });
         setWorkspace(Path.of(System.getProperty("user.dir")).toAbsolutePath().normalize());
-        getChildren().addAll(title, chooseFolder, tree);
+        getChildren().addAll(title, chooseFolder, newFile, refresh, tree);
         VBox.setVgrow(tree, Priority.ALWAYS);
     }
 
@@ -61,6 +68,26 @@ public final class FileExplorer extends VBox {
         TreeItem<Path> root = treeItem(path);
         root.setExpanded(true);
         tree.setRoot(root);
+    }
+
+    private void refresh() {
+        if (tree.getRoot() == null) return;
+        Path rootPath = tree.getRoot().getValue();
+        tree.setRoot(treeItem(rootPath));
+        tree.getRoot().setExpanded(true);
+    }
+
+    private void createFile() {
+        if (tree.getRoot() == null || !Files.isDirectory(tree.getRoot().getValue())) return;
+        TextInputDialog dialog = new TextInputDialog("untitled.txt");
+        dialog.setTitle("New file");
+        dialog.setHeaderText("Create a file in the workspace root");
+        dialog.showAndWait().ifPresent(name -> {
+            if (name.isBlank() || name.contains("/") || name.contains("\\")) return;
+            Path file = tree.getRoot().getValue().resolve(name);
+            try { Files.createFile(file); refresh(); onFileOpen.accept(file); }
+            catch (IOException ignored) { }
+        });
     }
 
     private TreeItem<Path> treeItem(Path path) {

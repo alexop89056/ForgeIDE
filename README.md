@@ -6,6 +6,7 @@ A lightweight desktop text editor built with JavaFX. ForgeIDE is a focused found
 
 - Multiple editor tabs
 - VS Code-style file explorer with workspace folder selection
+- Workspace refresh and one-click new-file creation
 - New, open, save and save-as workflows
 - Line numbers
 - Undo and redo
