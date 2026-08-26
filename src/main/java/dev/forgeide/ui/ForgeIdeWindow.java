@@ -43,12 +43,12 @@ public final class ForgeIdeWindow {
         root.setCenter(tabs);
         root.setBottom(createStatusBar());
         var files = preferences.openFiles();
-        if (files.isEmpty()) tabs.newDocument(); else files.forEach(tabs::openPath);
+        files.forEach(tabs::openPath);
 
         Scene scene = new Scene(root, 1100, 720);
         scene.getStylesheets().add(getClass().getResource("/dev/forgeide/forgeide.css").toExternalForm());
         stage.setTitle("ForgeIDE");
-        var logo = getClass().getResourceAsStream("/logo.png");
+        var logo = getClass().getResourceAsStream("/logo-transparent.png");
         if (logo != null) stage.getIcons().add(new Image(logo));
         stage.setScene(scene);
         stage.setOnCloseRequest(event -> {
