@@ -34,6 +34,7 @@ public final class FileExplorer extends VBox {
             @Override protected void updateItem(Path path, boolean empty) {
                 super.updateItem(path, empty);
                 setText(empty || path == null ? null : path.getFileName() == null ? path.toString() : path.getFileName().toString());
+                if (!empty && path != null) setContextMenu(contextMenu(path)); else setContextMenu(null);
             }
         });
         tree.setOnMouseClicked(event -> {
@@ -85,6 +86,16 @@ public final class FileExplorer extends VBox {
             try { Files.createFile(file); refresh(); onFileOpen.accept(file); }
             catch (IOException ignored) { }
         });
+    }
+
+    private ContextMenu contextMenu(Path path) {
+        MenuItem folder = new MenuItem("New folder");
+        folder.setOnAction(e -> { TextInputDialog d = new TextInputDialog("folder"); d.setTitle("New folder"); d.showAndWait().ifPresent(name -> { try { Files.createDirectory(path.resolve(name)); refresh(); } catch (IOException ignored) { } }); });
+        MenuItem rename = new MenuItem("Rename");
+        rename.setOnAction(e -> { TextInputDialog d = new TextInputDialog(path.getFileName().toString()); d.setTitle("Rename"); d.showAndWait().ifPresent(name -> { try { Files.move(path, path.resolveSibling(name)); refresh(); } catch (IOException ignored) { } }); });
+        MenuItem delete = new MenuItem("Delete");
+        delete.setOnAction(e -> { if (path.equals(tree.getRoot().getValue())) return; try { Files.deleteIfExists(path); refresh(); } catch (IOException ignored) { } });
+        return new ContextMenu(folder, rename, delete);
     }
 
     private TreeItem<Path> treeItem(Path path) {
