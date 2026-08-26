@@ -44,7 +44,8 @@ public final class EditorTab extends Tab {
         verticalScroll.setOrientation(Orientation.VERTICAL);
         verticalScroll.getStyleClass().add("editor-scrollbar");
         verticalScroll.setMin(0);
-        verticalScroll.valueProperty().addListener((obs, old, value) -> text.showParagraphInViewport(value.intValue()));
+        verticalScroll.valueProperty().addListener((obs, old, value) -> text.showParagraphAtTop(value.intValue()));
+        text.getVisibleParagraphs().sizeProperty().addListener((obs, old, value) -> syncScrollBar());
 
         ChangeListener<String> listener = (obs, old, value) -> {
             if (!initializing) {
@@ -52,7 +53,7 @@ public final class EditorTab extends Tab {
                 setText(displayTitle());
                 documentChangeListener.accept(value);
             }
-            verticalScroll.setMax(Math.max(0, text.getParagraphs().size() - 1));
+            syncScrollBar();
             highlightDelay.playFromStart();
         };
         text.textProperty().addListener(listener);
@@ -141,6 +142,15 @@ public final class EditorTab extends Tab {
 
     private void applyFontSize() {
         text.setStyle("-fx-font-family: 'JetBrains Mono'; -fx-font-size: " + fontSize + "px;");
+    }
+
+    private void syncScrollBar() {
+        int total = text.getParagraphs().size();
+        int visible = Math.max(1, text.getVisibleParagraphs().size());
+        verticalScroll.setMax(Math.max(0, total - visible));
+        verticalScroll.setVisibleAmount(visible);
+        int first = total == 0 ? 0 : text.visibleParToAllParIndex(0);
+        if (Math.abs(verticalScroll.getValue() - first) > 0.5) verticalScroll.setValue(first);
     }
 
     private javafx.scene.control.Label createLineNumber(int index) {
