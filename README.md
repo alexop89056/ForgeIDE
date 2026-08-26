@@ -41,6 +41,12 @@ dev.forgeide
 ```
 
 The UI layer coordinates feature components, while editor state, file navigation and syntax highlighting remain isolated and independently replaceable.
+
+## Project resources
+
+- `docs/` — architecture notes, LSP notes and roadmap
+- `examples/` — small Java, Python and JavaScript files for demonstrations
+- `scripts/` — repeatable development checks
 - Gradle
 
 ## Run
@@ -50,6 +56,28 @@ The UI layer coordinates feature components, while editor state, file navigation
 ```
 
 The Gradle JavaFX plugin downloads the platform-specific JavaFX modules automatically. A JDK 21 installation is required.
+
+## Build a distributable application
+
+Build the project and create the runnable application directory:
+
+```bash
+./gradlew clean installDist
+```
+
+The result is written to `build/install/ForgeIDE/`. Run it on Linux with:
+
+```bash
+build/install/ForgeIDE/bin/ForgeIDE
+```
+
+To create a portable ZIP archive:
+
+```bash
+./gradlew clean distZip
+```
+
+The archive is generated in `build/distributions/` and includes the application launcher, dependencies and JavaFX runtime modules for the current platform.
 
 ## Roadmap
 
