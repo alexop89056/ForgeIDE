@@ -39,7 +39,8 @@ public final class FileExplorer extends VBox {
             }
         });
         tree.setOnMouseClicked(event -> {
-            if (event.getButton() == MouseButton.PRIMARY && event.getClickCount() == 1) {
+            if (event.getButton() == MouseButton.PRIMARY && event.getClickCount() == 1
+                    && event.getTarget() instanceof TreeCell<?>) {
                 TreeItem<Path> selected = tree.getSelectionModel().getSelectedItem();
                 if (selected != null && selected.getValue() != null && Files.isRegularFile(selected.getValue())) onFileOpen.accept(selected.getValue());
             }

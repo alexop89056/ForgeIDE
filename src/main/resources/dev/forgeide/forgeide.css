@@ -1,4 +1,7 @@
 .root-pane { -fx-background-color: #11161d; }
+.split-pane { -fx-background-color: #11161d; -fx-border-color: transparent; }
+.split-pane-divider { -fx-background-color: #2a3947; -fx-padding: 0 1 0 1; }
+.text-area:focused, .text-field:focused { -fx-focus-color: transparent; -fx-faint-focus-color: transparent; -fx-border-color: #2a3947; }
 .window-bar { -fx-background-color: #18212b; -fx-padding: 0 6 0 12; -fx-alignment: center-left; -fx-spacing: 4; }
 .window-title { -fx-text-fill: #dbe5ee; -fx-font-weight: bold; -fx-padding: 0 18 0 0; }
 .window-button { -fx-background-color: transparent; -fx-text-fill: #c8d3dd; -fx-font-size: 16px; -fx-min-width: 34; -fx-min-height: 30; -fx-padding: 0; }
@@ -9,6 +12,13 @@
 .agent-panel { -fx-background-color: #151d25; -fx-border-color: #2a3947 transparent transparent #2a3947; -fx-padding: 14px; }
 .agent-title { -fx-text-fill: #8fa2b3; -fx-font-size: 11px; -fx-font-weight: bold; }
 .agent-placeholder { -fx-text-fill: #657789; -fx-font-size: 13px; -fx-padding: 18px 4px; }
+.agent-close { -fx-background-color: transparent; -fx-text-fill: #8fa2b3; -fx-font-size: 18px; -fx-padding: 0 4px; }
+.agent-close:hover { -fx-text-fill: #e06c75; }
+.agent-messages, .agent-messages .content { -fx-background-color: #11161d; -fx-control-inner-background: #11161d; -fx-text-fill: #c8d3dd; -fx-border-color: #2a3947; -fx-wrap-text: true; }
+.agent-messages .viewport { -fx-background-color: #11161d; }
+.agent-panel .text-field { -fx-background-color: #11161d; -fx-control-inner-background: #11161d; -fx-text-fill: #dbe5ee; -fx-prompt-text-fill: #718394; -fx-border-color: #2a3947; -fx-padding: 7 9; }
+.agent-send { -fx-background-color: #29455b; -fx-text-fill: #dbe5ee; -fx-padding: 7 12; }
+.agent-send:hover { -fx-background-color: #315b78; }
 .explorer .button { -fx-background-color: #263646; -fx-text-fill: #d8e0e8; -fx-border-color: #3a4c5d; -fx-background-radius: 4; -fx-border-radius: 4; -fx-padding: 6 9; -fx-cursor: hand; }
 .explorer .button:hover { -fx-background-color: #31506a; }
 .tree-view { -fx-background-color: #151d25; -fx-control-inner-background: #151d25; -fx-border-color: transparent; -fx-padding: 3 0; }
@@ -28,8 +38,10 @@
 .tab-pane .tab-header-area,
 .tab-pane .tab-header-background,
 .tab-pane .headers-region,
-.tab-pane .tab-content-area { -fx-background-color: #11161d; }
-.tab { -fx-background-color: #18212b; -fx-padding: 8 18; }
+ .tab-pane .tab-content-area { -fx-background-color: #11161d; }
+.tab-pane .tab-header-area { -fx-padding: 0; }
+.tab-pane .tab-header-background, .tab-pane .headers-region { -fx-padding: 0; }
+.tab { -fx-background-color: #18212b; -fx-padding: 6 10; }
 .tab:selected { -fx-background-color: #263646; }
 .tab:focused, .tab:selected:focused { -fx-focus-color: transparent; -fx-faint-focus-color: transparent; -fx-background-insets: 0; }
 .tab-pane:focused { -fx-focus-color: transparent; -fx-faint-focus-color: transparent; }
@@ -38,7 +50,8 @@
 .tab .tab-label { -fx-text-fill: #c8d3dd; }
 .text-area { -fx-background-color: #11161d; -fx-control-inner-background: #11161d; -fx-text-fill: #dbe5ee; -fx-highlight-fill: #24445b; -fx-border-color: transparent; }
 .text-area .content { -fx-background-color: #11161d; }
-.code-area, .code-area .content, .styled-text-area { -fx-background-color: #11161d; -fx-text-fill: #dbe5ee; -rtfx-selection-fill: #24445b; }
+.code-area, .code-area .content, .styled-text-area { -fx-background-color: #11161d; -fx-text-fill: #dbe5ee; -rtfx-selection-fill: #24445b; -fx-padding: 0; }
+.styled-text-area .content { -fx-padding: 8 4; }
 .styled-text-area .text { -fx-fill: #dbe5ee; }
 .styled-text-area .paragraph-box.current-line { -fx-background-color: #182632; }
 .styled-text-area .keyword { -fx-fill: #c792ea; }
@@ -59,7 +72,7 @@
 .styled-text-area .python-keyword { -fx-fill: #c792ea; }
 .styled-text-area .python-string { -fx-fill: #ecc48d; }
 .styled-text-area .js-comment, .styled-text-area .python-comment, .styled-text-area .java-comment { -fx-fill: #6a8496; }
-.line-numbers { -fx-pref-width: 52; -fx-min-width: 52; -fx-background-color: #151d25; -fx-text-fill: #657789; -fx-alignment: top-right; -fx-padding: 8 10; }
+.line-numbers { -fx-pref-width: 42; -fx-min-width: 42; -fx-background-color: #151d25; -fx-text-fill: #657789; -fx-alignment: top-left; -fx-padding: 8 0 8 10; }
 .line-numbers .content { -fx-background-color: #151d25; }
 .line-numbers .viewport { -fx-background-color: #151d25; }
 .line-numbers .scroll-pane { -fx-background-color: #151d25; -fx-background-insets: 0; -fx-padding: 0; }

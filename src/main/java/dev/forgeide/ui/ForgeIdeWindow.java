@@ -15,6 +15,7 @@ import javafx.stage.StageStyle;
 import javafx.scene.image.Image;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.control.SplitPane;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.stream.Collectors;
@@ -36,7 +37,6 @@ public final class ForgeIdeWindow {
         root.getStyleClass().add("root-pane");
         root.setTop(createTopBar());
         root.setLeft(explorer);
-        root.setRight(createAgentPanel());
         root.setCenter(tabs);
         root.setBottom(createStatusBar());
         tabs.newDocument();
@@ -78,12 +78,20 @@ public final class ForgeIdeWindow {
     private VBox createAgentPanel() {
         Label title = new Label("AGENT");
         title.getStyleClass().add("agent-title");
-        Label placeholder = new Label("Agent panel\nComing soon");
-        placeholder.getStyleClass().add("agent-placeholder");
-        VBox panel = new VBox(12, title, placeholder);
+        Button close = new Button("×"); close.getStyleClass().add("agent-close");
+        HBox header = new HBox(title, close); HBox.setHgrow(title, javafx.scene.layout.Priority.ALWAYS);
+        TextArea messages = new TextArea("ForgeIDE Agent\n\nAsk anything about your code.");
+        messages.setEditable(false); messages.setWrapText(true); messages.getStyleClass().add("agent-messages");
+        TextField input = new TextField(); input.setPromptText("Message agent…");
+        Button send = new Button("Send"); send.getStyleClass().add("agent-send");
+        HBox composer = new HBox(input, send); HBox.setHgrow(input, javafx.scene.layout.Priority.ALWAYS);
+        Runnable submit = () -> { if (!input.getText().isBlank()) { messages.appendText("\n\nYou: " + input.getText() + "\nAgent: Demo response (offline)"); input.clear(); } };
+        send.setOnAction(e -> submit.run()); input.setOnAction(e -> submit.run());
+        VBox panel = new VBox(10, header, messages, composer);
         panel.getStyleClass().add("agent-panel");
         panel.setPrefWidth(285);
         panel.setMinWidth(245);
+        close.setOnAction(e -> { panel.setVisible(false); panel.setManaged(false); });
         return panel;
     }
 
