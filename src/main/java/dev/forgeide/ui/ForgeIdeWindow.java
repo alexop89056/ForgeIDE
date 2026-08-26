@@ -21,6 +21,7 @@ public final class ForgeIdeWindow {
     private final Stage stage;
     private final Label status = new Label("Ready");
     private final EditorTabs tabs = new EditorTabs(status::setText);
+    private final FileExplorer explorer = new FileExplorer(tabs::openPath);
     private final Menu recentMenu = new Menu("Recent files");
 
     public ForgeIdeWindow(Stage stage) {
@@ -31,7 +32,7 @@ public final class ForgeIdeWindow {
         BorderPane root = new BorderPane();
         root.getStyleClass().add("root-pane");
         root.setTop(createMenuBar());
-        root.setLeft(new FileExplorer(tabs::openPath));
+        root.setLeft(explorer);
         root.setCenter(tabs);
         root.setBottom(createStatusBar());
         tabs.newDocument();
@@ -54,6 +55,7 @@ public final class ForgeIdeWindow {
         Menu file = new Menu("File");
         file.getItems().addAll(
                 item("New", new KeyCodeCombination(KeyCode.N, KeyCombination.SHORTCUT_DOWN), e -> tabs.newDocument()),
+                item("Open folder…", null, e -> explorer.openFolder(stage)),
                 item("Open…", new KeyCodeCombination(KeyCode.O, KeyCombination.SHORTCUT_DOWN), e -> { tabs.openDocument(stage); refreshRecent(); }),
                 new SeparatorMenuItem(),
                 item("Save", new KeyCodeCombination(KeyCode.S, KeyCombination.SHORTCUT_DOWN), e -> tabs.saveCurrent(stage, false)),

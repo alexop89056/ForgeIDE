@@ -29,9 +29,6 @@ public final class FileExplorer extends VBox {
 
         Label title = new Label("EXPLORER");
         title.getStyleClass().add("explorer-title");
-        Button chooseFolder = new Button("Open folder…");
-        chooseFolder.setMaxWidth(Double.MAX_VALUE);
-        chooseFolder.setOnAction(event -> chooseFolder(getScene().getWindow()));
         Button newFile = new Button("New file");
         newFile.setMaxWidth(Double.MAX_VALUE);
         newFile.setDisable(true);
@@ -55,7 +52,7 @@ public final class FileExplorer extends VBox {
                 if (selected != null && selected.getValue() != null && Files.isRegularFile(selected.getValue())) onFileOpen.accept(selected.getValue());
             }
         });
-        getChildren().addAll(title, chooseFolder, newFile, refresh, tree);
+        getChildren().addAll(title, newFile, refresh, tree);
         if (tree.getRoot() != null) { newFile.setDisable(false); refresh.setDisable(false); }
         VBox.setVgrow(tree, Priority.ALWAYS);
     }
@@ -75,6 +72,8 @@ public final class FileExplorer extends VBox {
                     .forEach(node -> node.setDisable(false));
         }
     }
+
+    public void openFolder(javafx.stage.Window owner) { chooseFolder(owner); }
 
     private void setWorkspace(Path path) {
         TreeItem<Path> root = treeItem(path);
