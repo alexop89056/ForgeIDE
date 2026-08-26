@@ -11,6 +11,9 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.Tab;
 import javafx.scene.control.ScrollBar;
 import javafx.geometry.Orientation;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
+import javafx.application.Platform;
 import javafx.util.Duration;
 import org.fxmisc.richtext.CodeArea;
 import dev.forgeide.syntax.SyntaxHighlighter;
@@ -25,6 +28,7 @@ public final class EditorTab extends Tab {
     private final CodeArea text = new CodeArea();
     private final ScrollBar verticalScroll = new ScrollBar();
     private final PauseTransition highlightDelay = new PauseTransition(Duration.millis(140));
+    private final PauseTransition autoSaveDelay = new PauseTransition(Duration.seconds(2));
     private Path path;
     private boolean dirty;
     private boolean initializing = true;
@@ -41,6 +45,7 @@ public final class EditorTab extends Tab {
         applyFontSize();
         text.setWrapText(preferences.wrapText());
         text.setParagraphGraphicFactory(index -> createLineNumber(index));
+        text.addEventFilter(KeyEvent.KEY_PRESSED, this::handleEditorKey);
         verticalScroll.setOrientation(Orientation.VERTICAL);
         verticalScroll.getStyleClass().add("editor-scrollbar");
         verticalScroll.setMin(0);
@@ -52,6 +57,7 @@ public final class EditorTab extends Tab {
                 dirty = true;
                 setText(displayTitle());
                 documentChangeListener.accept(value);
+                autoSaveDelay.playFromStart();
             }
             syncScrollBar();
             highlightDelay.playFromStart();
@@ -62,6 +68,7 @@ public final class EditorTab extends Tab {
             caretListener.accept(this);
         });
         highlightDelay.setOnFinished(event -> applyHighlighting());
+        autoSaveDelay.setOnFinished(event -> autoSave());
         updateCurrentLine();
         applyHighlighting();
         initializing = false;
@@ -144,6 +151,25 @@ public final class EditorTab extends Tab {
 
     private void applyFontSize() {
         text.setStyle("-fx-font-family: 'JetBrains Mono'; -fx-font-size: " + fontSize + "px;");
+    }
+
+    private void handleEditorKey(KeyEvent event) {
+        if (event.getCode() == KeyCode.TAB && preferences.insertSpaces()) {
+            text.replaceSelection(" ".repeat(preferences.tabSize())); event.consume();
+        } else if (event.getCode() == KeyCode.ENTER) {
+            int caret = text.getCaretPosition(); String before = text.getText(0, caret);
+            String line = before.substring(before.lastIndexOf('\n') + 1);
+            String indent = line.substring(0, line.length() - line.stripLeading().length());
+            if (line.trim().endsWith("{") || line.trim().endsWith(":")) indent += " ".repeat(preferences.tabSize());
+            final String indentation = indent;
+            if (!indentation.isEmpty()) Platform.runLater(() -> text.insertText(text.getCaretPosition(), indentation));
+        }
+    }
+
+    private void autoSave() {
+        if (!dirty || path == null) return;
+        try { java.nio.file.Files.writeString(path, text.getText()); dirty = false; setText(displayTitle()); }
+        catch (java.io.IOException ignored) { }
     }
 
     private void syncScrollBar() {
