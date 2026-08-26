@@ -12,6 +12,7 @@ import java.util.prefs.Preferences;
 public final class WorkspacePreferences {
     private static final String LAST_WORKSPACE = "lastWorkspace";
     private static final String OPEN_FILES = "openFiles";
+    private static final String CARET_PREFIX = "caret.";
     private final Preferences preferences = Preferences.userNodeForPackage(WorkspacePreferences.class);
 
     public Optional<Path> lastWorkspace() {
@@ -33,4 +34,7 @@ public final class WorkspacePreferences {
     public void rememberOpenFiles(List<Path> files) {
         preferences.put(OPEN_FILES, files.stream().map(path -> path.toAbsolutePath().normalize().toString()).collect(Collectors.joining("\n")));
     }
+
+    public int caretPosition(Path file) { return preferences.getInt(CARET_PREFIX + Integer.toHexString(file.toAbsolutePath().normalize().toString().hashCode()), 0); }
+    public void rememberCaret(Path file, int position) { if (file != null) preferences.putInt(CARET_PREFIX + Integer.toHexString(file.toAbsolutePath().normalize().toString().hashCode()), Math.max(0, position)); }
 }

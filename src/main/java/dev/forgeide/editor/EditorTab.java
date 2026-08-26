@@ -110,6 +110,8 @@ public final class EditorTab extends Tab {
         text.moveTo(text.getAbsolutePosition(paragraph, 0));
         return true;
     }
+    public int caretPosition() { return text.getCaretPosition(); }
+    public void gotoPosition(int position) { text.moveTo(Math.max(0, Math.min(position, text.getLength()))); }
 
     public void saveTo(Path target) {
         path = target;

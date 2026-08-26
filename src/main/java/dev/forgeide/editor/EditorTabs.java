@@ -62,6 +62,7 @@ public final class EditorTabs extends TabPane implements AutoCloseable {
             languageServers.start(extension, workspace);
             languageServers.didOpen(normalized, languageId(extension), editor.getDocumentText());
             getSelectionModel().select(editor);
+            editor.gotoPosition(preferences.caretPosition(normalized));
             rememberOpenFiles();
         } catch (IOException error) {
             showError("Could not open file", error);
@@ -148,7 +149,7 @@ public final class EditorTabs extends TabPane implements AutoCloseable {
     }
 
     private void register(EditorTab editor) {
-        editor.setCaretListener(ignored -> updateStatus());
+        editor.setCaretListener(changed -> { updateStatus(); if (changed.getPath() != null) preferences.rememberCaret(changed.getPath(), changed.caretPosition()); });
         editor.setDocumentChangeListener(text -> {
             if (editor.getPath() != null) languageServers.didChange(editor.getPath(), text);
         });
