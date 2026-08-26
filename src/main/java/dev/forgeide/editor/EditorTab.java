@@ -1,14 +1,12 @@
 package dev.forgeide.editor;
 
 import javafx.animation.PauseTransition;
+import javafx.beans.binding.Bindings;
 import javafx.beans.value.ChangeListener;
-import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Tab;
-import javafx.scene.control.Label;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
 import javafx.util.Duration;
 import org.fxmisc.richtext.CodeArea;
 import dev.forgeide.syntax.SyntaxHighlighter;
@@ -17,11 +15,10 @@ import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.function.Consumer;
-import java.util.stream.IntStream;
+import dev.forgeide.preferences.EditorPreferences;
 
 public final class EditorTab extends Tab {
     private final CodeArea text = new CodeArea();
-    private final Label lineNumbers = new Label("1");
     private final PauseTransition highlightDelay = new PauseTransition(Duration.millis(140));
     private Path path;
     private boolean dirty;
@@ -30,19 +27,17 @@ public final class EditorTab extends Tab {
     private Consumer<EditorTab> caretListener = ignored -> { };
     private Consumer<String> documentChangeListener = ignored -> { };
     private double fontSize = 14;
+    private final EditorPreferences preferences = new EditorPreferences();
 
     public EditorTab(Path path, String content) {
         this.path = path;
         text.replaceText(content);
         text.getStyleClass().add("code-area");
         applyFontSize();
-        lineNumbers.setFocusTraversable(false);
-        lineNumbers.setMouseTransparent(true);
-        lineNumbers.getStyleClass().add("line-numbers");
-        lineNumbers.setStyle("-fx-font-family: 'JetBrains Mono'; -fx-font-size: 14px;");
+        text.setWrapText(preferences.wrapText());
+        text.setParagraphGraphicFactory(index -> createLineNumber(index));
 
         ChangeListener<String> listener = (obs, old, value) -> {
-            refreshLineNumbers();
             if (!initializing) {
                 dirty = true;
                 setText(displayTitle());
@@ -55,17 +50,12 @@ public final class EditorTab extends Tab {
             updateCurrentLine();
             caretListener.accept(this);
         });
-        text.estimatedScrollYProperty().addListener((obs, old, value) -> lineNumbers.setTranslateY(-value.doubleValue()));
         highlightDelay.setOnFinished(event -> applyHighlighting());
-        refreshLineNumbers();
         updateCurrentLine();
         applyHighlighting();
         initializing = false;
 
-        HBox contentBox = new HBox(lineNumbers, text);
-        contentBox.setPadding(new Insets(0));
-        setContent(contentBox);
-        HBox.setHgrow(text, Priority.ALWAYS);
+        setContent(text);
         setText(title());
     }
 
@@ -77,6 +67,7 @@ public final class EditorTab extends Tab {
     public void setCaretListener(Consumer<EditorTab> listener) { caretListener = listener == null ? ignored -> { } : listener; }
     public void setDocumentChangeListener(Consumer<String> listener) { documentChangeListener = listener == null ? ignored -> { } : listener; }
     public void setWrap(boolean enabled) { text.setWrapText(enabled); }
+    public void applyPreferences() { text.setWrapText(preferences.wrapText()); }
     public void undo() { text.undo(); }
     public void redo() { text.redo(); }
     public void focusEditor() { text.requestFocus(); }
@@ -137,7 +128,17 @@ public final class EditorTab extends Tab {
 
     private void applyFontSize() {
         text.setStyle("-fx-font-family: 'JetBrains Mono'; -fx-font-size: " + fontSize + "px;");
-        lineNumbers.setStyle("-fx-font-family: 'JetBrains Mono'; -fx-font-size: " + fontSize + "px;");
+    }
+
+    private javafx.scene.control.Label createLineNumber(int index) {
+        javafx.scene.control.Label lineNumber = new javafx.scene.control.Label();
+        lineNumber.getStyleClass().add("line-number");
+        lineNumber.setAlignment(Pos.CENTER_LEFT);
+        lineNumber.textProperty().bind(Bindings.createStringBinding(() -> {
+            int digits = Integer.toString(Math.max(1, text.getParagraphs().size())).length();
+            return String.format("%" + digits + "d", index + 1);
+        }, text.getParagraphs().sizeProperty()));
+        return lineNumber;
     }
 
     private static String extension(Path file) {
@@ -155,9 +156,4 @@ public final class EditorTab extends Tab {
         highlightedParagraph = currentParagraph;
     }
 
-    private void refreshLineNumbers() {
-        int lines = Math.max(1, text.getText().split("\\R", -1).length);
-        lineNumbers.setText(IntStream.rangeClosed(1, lines).mapToObj(String::valueOf)
-                .collect(java.util.stream.Collectors.joining("\n")));
-    }
 }

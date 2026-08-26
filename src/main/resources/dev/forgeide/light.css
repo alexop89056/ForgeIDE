@@ -1,0 +1,4 @@
+.root-pane, .tab-pane, .tab-pane .tab-header-area, .tab-pane .tab-header-background, .tab-pane .headers-region, .tab-pane .tab-content-area, .code-area, .code-area .content, .styled-text-area { -fx-background-color: #f5f7fa; }
+.styled-text-area .text { -fx-fill: #263238; }
+.tab { -fx-background-color: #e4e9ef; }
+.tab:selected { -fx-background-color: #d0d9e2; }

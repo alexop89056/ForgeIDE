@@ -14,6 +14,7 @@ import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import dev.forgeide.preferences.WorkspacePreferences;
+import dev.forgeide.preferences.EditorPreferences;
 import javafx.scene.image.Image;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
@@ -28,6 +29,7 @@ public final class ForgeIdeWindow {
     private final EditorTabs tabs = new EditorTabs(status::setText);
     private final FileExplorer explorer = new FileExplorer(tabs::openPath);
     private final WorkspacePreferences preferences = new WorkspacePreferences();
+    private final EditorPreferences editorPreferences = new EditorPreferences();
     private final Menu recentMenu = new Menu("Recent files");
 
     public ForgeIdeWindow(Stage stage) {
@@ -131,9 +133,24 @@ public final class ForgeIdeWindow {
 
         Menu view = new Menu("View");
         CheckMenuItem wrap = new CheckMenuItem("Wrap text");
-        wrap.setOnAction(e -> tabs.current().ifPresent(editor -> editor.setWrap(wrap.isSelected())));
-        view.getItems().add(wrap);
+        wrap.setSelected(editorPreferences.wrapText());
+        wrap.setOnAction(e -> { editorPreferences.setWrapText(wrap.isSelected()); tabs.current().ifPresent(editor -> editor.setWrap(wrap.isSelected())); });
+        Menu tabSize = new Menu("Tab size");
+        ToggleGroup sizes = new ToggleGroup();
+        for (int size : new int[]{2, 4, 8}) { RadioMenuItem item = new RadioMenuItem(String.valueOf(size)); item.setToggleGroup(sizes); item.setSelected(editorPreferences.tabSize() == size); item.setOnAction(e -> editorPreferences.setTabSize(size)); tabSize.getItems().add(item); }
+        CheckMenuItem spaces = new CheckMenuItem("Insert spaces"); spaces.setSelected(editorPreferences.insertSpaces()); spaces.setOnAction(e -> editorPreferences.setInsertSpaces(spaces.isSelected()));
+        Menu theme = new Menu("Theme");
+        RadioMenuItem dark = new RadioMenuItem("Dark"); RadioMenuItem light = new RadioMenuItem("Light"); ToggleGroup themes = new ToggleGroup(); dark.setToggleGroup(themes); light.setToggleGroup(themes); dark.setSelected(true);
+        dark.setOnAction(e -> applyTheme("dark")); light.setOnAction(e -> applyTheme("light")); theme.getItems().addAll(dark, light);
+        view.getItems().addAll(wrap, tabSize, spaces, theme);
         return new MenuBar(file, edit, view);
+    }
+
+    private void applyTheme(String name) {
+        editorPreferences.setTheme(name);
+        if (stage.getScene() == null) return;
+        stage.getScene().getStylesheets().removeIf(url -> url.endsWith("light.css"));
+        if ("light".equals(name)) stage.getScene().getStylesheets().add(getClass().getResource("/dev/forgeide/light.css").toExternalForm());
     }
 
     private void refreshRecent() {
