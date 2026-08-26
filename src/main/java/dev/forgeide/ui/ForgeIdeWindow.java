@@ -9,6 +9,7 @@ import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
@@ -72,8 +73,8 @@ public final class ForgeIdeWindow {
         bar.getStyleClass().add("window-bar");
         HBox.setHgrow(menu, javafx.scene.layout.Priority.ALWAYS);
         final double[] offset = new double[2];
-        bar.setOnMousePressed(e -> { offset[0] = e.getSceneX(); offset[1] = e.getSceneY(); });
-        bar.setOnMouseDragged(e -> { if (!stage.isMaximized()) { stage.setX(e.getScreenX() - offset[0]); stage.setY(e.getScreenY() - offset[1]); } });
+        bar.addEventFilter(MouseEvent.MOUSE_PRESSED, e -> { offset[0] = e.getSceneX(); offset[1] = e.getSceneY(); });
+        bar.addEventFilter(MouseEvent.MOUSE_DRAGGED, e -> { if (!stage.isMaximized()) { stage.setX(e.getScreenX() - offset[0]); stage.setY(e.getScreenY() - offset[1]); } });
         return bar;
     }
 

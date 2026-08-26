@@ -45,7 +45,8 @@
 .editor-scrollbar .track { -fx-background-color: #151d25; }
 .editor-scrollbar .thumb { -fx-background-color: #405363; -fx-background-radius: 5; }
 .editor-scrollbar .thumb:hover { -fx-background-color: #587184; }
-.editor-scrollbar .increment-button, .editor-scrollbar .decrement-button { -fx-padding: 0; -fx-background-color: transparent; }
+.editor-scrollbar .increment-button, .editor-scrollbar .decrement-button { -fx-padding: 0; -fx-pref-height: 0; -fx-min-height: 0; -fx-max-height: 0; -fx-opacity: 0; -fx-background-color: transparent; }
+.editor-scrollbar .increment-arrow, .editor-scrollbar .decrement-arrow { -fx-shape: ""; -fx-padding: 0; -fx-opacity: 0; }
 .menu-bar { -fx-background-color: #18212b; -fx-padding: 4 10; }
 .menu-bar .label, .menu-item .label { -fx-text-fill: #d8e0e8; }
 .context-menu { -fx-background-color: #202b36; }
