@@ -4,9 +4,13 @@ import javafx.animation.PauseTransition;
 import javafx.beans.binding.Bindings;
 import javafx.beans.value.ChangeListener;
 import javafx.geometry.Pos;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Tab;
+import javafx.scene.control.ScrollBar;
+import javafx.geometry.Orientation;
 import javafx.util.Duration;
 import org.fxmisc.richtext.CodeArea;
 import dev.forgeide.syntax.SyntaxHighlighter;
@@ -19,6 +23,7 @@ import dev.forgeide.preferences.EditorPreferences;
 
 public final class EditorTab extends Tab {
     private final CodeArea text = new CodeArea();
+    private final ScrollBar verticalScroll = new ScrollBar();
     private final PauseTransition highlightDelay = new PauseTransition(Duration.millis(140));
     private Path path;
     private boolean dirty;
@@ -36,6 +41,10 @@ public final class EditorTab extends Tab {
         applyFontSize();
         text.setWrapText(preferences.wrapText());
         text.setParagraphGraphicFactory(index -> createLineNumber(index));
+        verticalScroll.setOrientation(Orientation.VERTICAL);
+        verticalScroll.getStyleClass().add("editor-scrollbar");
+        verticalScroll.setMin(0);
+        verticalScroll.valueProperty().addListener((obs, old, value) -> text.showParagraphInViewport(value.intValue()));
 
         ChangeListener<String> listener = (obs, old, value) -> {
             if (!initializing) {
@@ -43,6 +52,7 @@ public final class EditorTab extends Tab {
                 setText(displayTitle());
                 documentChangeListener.accept(value);
             }
+            verticalScroll.setMax(Math.max(0, text.getParagraphs().size() - 1));
             highlightDelay.playFromStart();
         };
         text.textProperty().addListener(listener);
@@ -54,8 +64,11 @@ public final class EditorTab extends Tab {
         updateCurrentLine();
         applyHighlighting();
         initializing = false;
+        verticalScroll.setMax(Math.max(0, text.getParagraphs().size() - 1));
 
-        setContent(text);
+        HBox contentBox = new HBox(text, verticalScroll);
+        HBox.setHgrow(text, Priority.ALWAYS);
+        setContent(contentBox);
         setText(title());
     }
 
