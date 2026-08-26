@@ -16,6 +16,8 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import dev.forgeide.preferences.WorkspacePreferences;
 import dev.forgeide.preferences.EditorPreferences;
+import dev.forgeide.index.SymbolIndex;
+import dev.forgeide.index.SymbolLocation;
 import javafx.scene.image.Image;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
@@ -23,6 +25,7 @@ import javafx.scene.control.SplitPane;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.stream.Collectors;
+import java.util.List;
 
 public final class ForgeIdeWindow {
     private final Stage stage;
@@ -31,6 +34,7 @@ public final class ForgeIdeWindow {
     private final FileExplorer explorer = new FileExplorer(tabs::openPath);
     private final WorkspacePreferences preferences = new WorkspacePreferences();
     private final EditorPreferences editorPreferences = new EditorPreferences();
+    private final SymbolIndex symbolIndex = new SymbolIndex();
     private final Menu recentMenu = new Menu("Recent files");
 
     public ForgeIdeWindow(Stage stage) {
@@ -47,6 +51,7 @@ public final class ForgeIdeWindow {
         root.setBottom(createStatusBar());
         var files = preferences.openFiles();
         files.forEach(tabs::openPath);
+        preferences.lastWorkspace().ifPresent(workspace -> Thread.startVirtualThread(() -> symbolIndex.indexWorkspace(workspace, ignored -> { } )));
 
         Scene scene = new Scene(root, 1100, 720);
         scene.getStylesheets().add(getClass().getResource("/dev/forgeide/forgeide.css").toExternalForm());
@@ -130,6 +135,7 @@ public final class ForgeIdeWindow {
                 item("Find", new KeyCodeCombination(KeyCode.F, KeyCombination.SHORTCUT_DOWN), e -> find()),
                 item("Replace", new KeyCodeCombination(KeyCode.H, KeyCombination.SHORTCUT_DOWN), e -> replace()),
                 item("Go to line", new KeyCodeCombination(KeyCode.G, KeyCombination.SHORTCUT_DOWN), e -> gotoLine()));
+        edit.getItems().add(item("Go to symbol", new KeyCodeCombination(KeyCode.O, KeyCombination.SHORTCUT_DOWN, KeyCombination.SHIFT_DOWN), e -> gotoSymbol()));
         edit.getItems().add(item("Quick Open", new KeyCodeCombination(KeyCode.P, KeyCombination.SHORTCUT_DOWN), e -> quickOpen()));
 
         Menu view = new Menu("View");
@@ -145,6 +151,18 @@ public final class ForgeIdeWindow {
         dark.setOnAction(e -> applyTheme("dark")); light.setOnAction(e -> applyTheme("light")); theme.getItems().addAll(dark, light);
         view.getItems().addAll(wrap, tabSize, spaces, theme);
         return new MenuBar(file, edit, view);
+    }
+
+    private void gotoSymbol() {
+        TextInputDialog query = new TextInputDialog(); query.setTitle("Go to symbol"); query.setHeaderText("Search classes, methods and functions");
+        query.showAndWait().ifPresent(value -> {
+            List<SymbolLocation> matches = symbolIndex.search(value);
+            if (!matches.isEmpty()) {
+                ChoiceDialog<SymbolLocation> choices = new ChoiceDialog<>(matches.get(0), matches);
+                choices.setTitle("Go to symbol"); choices.setHeaderText("Select a symbol");
+                choices.showAndWait().ifPresent(symbol -> { tabs.openPath(symbol.file()); tabs.current().ifPresent(editor -> editor.gotoLine(symbol.line())); });
+            }
+        });
     }
 
     private void applyTheme(String name) {
