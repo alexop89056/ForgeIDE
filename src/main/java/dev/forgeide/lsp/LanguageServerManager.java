@@ -17,6 +17,7 @@ public final class LanguageServerManager implements AutoCloseable {
             "python", "pyright-langserver --stdio");
 
     private LanguageServerProcess process;
+    private int documentVersion;
 
     public Optional<String> supportedLanguage(String extension) {
         String key = extension == null ? "" : extension.toLowerCase(Locale.ROOT);
@@ -36,6 +37,16 @@ public final class LanguageServerManager implements AutoCloseable {
     }
 
     public boolean isRunning() { return process != null && process.isRunning(); }
+
+    public void didOpen(Path path, String languageId, String text) {
+        if (process == null) return;
+        try { documentVersion = 1; process.didOpen(path, languageId, text); } catch (IOException ignored) { }
+    }
+
+    public void didChange(Path path, String text) {
+        if (process == null) return;
+        try { process.didChange(path, ++documentVersion, text); } catch (IOException ignored) { }
+    }
 
     public void stop() {
         if (process != null) process.close();

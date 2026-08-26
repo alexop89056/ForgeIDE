@@ -40,12 +40,13 @@ public final class EditorTabs extends TabPane implements AutoCloseable {
 
     public void openPath(Path path) {
         try {
-            EditorTab editor = new EditorTab(path, Files.readString(path));
+        EditorTab editor = new EditorTab(path, Files.readString(path));
             register(editor);
             recent.remove(path); recent.add(0, path);
             if (recent.size() > 10) recent.remove(10);
             String extension = extension(path);
             languageServers.start(extension, path.getParent() == null ? path.toAbsolutePath().getParent() : path.getParent());
+            languageServers.didOpen(path, languageId(extension), editor.getDocumentText());
             getSelectionModel().select(editor);
         } catch (IOException error) {
             showError("Could not open file", error);
@@ -116,10 +117,17 @@ public final class EditorTabs extends TabPane implements AutoCloseable {
 
     private void register(EditorTab editor) {
         editor.setCaretListener(ignored -> updateStatus());
+        editor.setDocumentChangeListener(text -> {
+            if (editor.getPath() != null) languageServers.didChange(editor.getPath(), text);
+        });
         editor.setOnCloseRequest(event -> {
             if (!editor.confirmClose()) event.consume();
         });
         getTabs().add(editor);
+    }
+
+    private static String languageId(String extension) {
+        return switch (extension.toLowerCase()) { case "java" -> "java"; case "js", "jsx", "ts" -> "javascript"; case "py", "python" -> "python"; default -> extension; };
     }
 
     private void updateStatus() {

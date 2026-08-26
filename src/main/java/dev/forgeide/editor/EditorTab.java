@@ -28,6 +28,7 @@ public final class EditorTab extends Tab {
     private boolean initializing = true;
     private int highlightedParagraph = -1;
     private Consumer<EditorTab> caretListener = ignored -> { };
+    private Consumer<String> documentChangeListener = ignored -> { };
 
     public EditorTab(Path path, String content) {
         this.path = path;
@@ -44,6 +45,7 @@ public final class EditorTab extends Tab {
             if (!initializing) {
                 dirty = true;
                 setText(displayTitle());
+                documentChangeListener.accept(value);
             }
             highlightDelay.playFromStart();
         };
@@ -71,6 +73,7 @@ public final class EditorTab extends Tab {
     public boolean isDirty() { return dirty; }
     public String displayTitle() { return title() + (dirty ? " ●" : ""); }
     public void setCaretListener(Consumer<EditorTab> listener) { caretListener = listener == null ? ignored -> { } : listener; }
+    public void setDocumentChangeListener(Consumer<String> listener) { documentChangeListener = listener == null ? ignored -> { } : listener; }
     public void setWrap(boolean enabled) { text.setWrapText(enabled); }
     public void undo() { text.undo(); }
     public void redo() { text.redo(); }

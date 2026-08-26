@@ -1,6 +1,7 @@
 package dev.forgeide.lsp;
 
 import com.google.gson.JsonObject;
+import java.nio.file.Path;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Arrays;
@@ -28,6 +29,20 @@ final class LanguageServerProcess implements AutoCloseable {
     }
 
     boolean isRunning() { return process.isAlive(); }
+
+    void didOpen(Path path, String languageId, String text) throws IOException {
+        JsonObject document = new JsonObject(); document.addProperty("uri", path.toUri().toString());
+        document.addProperty("languageId", languageId); document.addProperty("version", 1); document.addProperty("text", text);
+        JsonObject params = new JsonObject(); params.add("textDocument", document); rpc.notify("textDocument/didOpen", params);
+    }
+
+    void didChange(Path path, int version, String text) throws IOException {
+        JsonObject document = new JsonObject(); document.addProperty("uri", path.toUri().toString()); document.addProperty("version", version);
+        JsonObject change = new JsonObject(); change.addProperty("text", text);
+        com.google.gson.JsonArray changes = new com.google.gson.JsonArray(); changes.add(change);
+        JsonObject params = new JsonObject(); params.add("textDocument", document); params.add("contentChanges", changes);
+        rpc.notify("textDocument/didChange", params);
+    }
 
     @Override public void close() { rpc.close(); process.destroy(); }
 }
