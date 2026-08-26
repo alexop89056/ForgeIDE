@@ -10,8 +10,12 @@ A lightweight desktop text editor built with JavaFX. ForgeIDE is a focused found
 - Line numbers
 - Undo and redo
 - Optional word wrapping
-- Basic syntax highlighting for Java, JavaScript and Python-style syntax
-- Keyboard shortcuts: `Ctrl/Cmd+N`, `Ctrl/Cmd+O`, `Ctrl/Cmd+S`, `Ctrl/Cmd+W`
+- Basic syntax highlighting with language-aware colors for Java, JavaScript, Python and JSON
+- Unsaved-change indicator and close confirmation
+- Current-line highlighting and cursor position (`Ln`, `Col`)
+- Find, replace-all and go-to-line dialogs
+- Quick Open (`Ctrl/Cmd+P`) and recently opened file tracking
+- Keyboard shortcuts: `Ctrl/Cmd+N`, `Ctrl/Cmd+O`, `Ctrl/Cmd+S`, `Ctrl/Cmd+W`, `Ctrl/Cmd+F`, `Ctrl/Cmd+H`, `Ctrl/Cmd+G`
 
 ## Tech stack
 

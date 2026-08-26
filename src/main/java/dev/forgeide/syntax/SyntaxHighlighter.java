@@ -20,15 +20,26 @@ public final class SyntaxHighlighter {
     private SyntaxHighlighter() { }
 
     public static StyleSpans<Collection<String>> highlight(String source) {
+        return highlight(source, "");
+    }
+
+    public static StyleSpans<Collection<String>> highlight(String source, String extension) {
+        String language = extension == null ? "" : extension.toLowerCase();
         Matcher matcher = TOKENS.matcher(source);
         StyleSpansBuilder<Collection<String>> spans = new StyleSpansBuilder<>();
         int lastEnd = 0;
         while (matcher.find()) {
             spans.add(Collections.emptyList(), matcher.start() - lastEnd);
-            String style = matcher.group("COMMENT") != null ? "comment"
+            String base = matcher.group("COMMENT") != null ? "comment"
                     : matcher.group("STRING") != null ? "string"
                     : matcher.group("KEYWORD") != null ? "keyword"
                     : matcher.group("NUMBER") != null ? "number" : "annotation";
+            String style = switch (language) {
+                case "java" -> "java-" + base;
+                case "javascript", "js", "json" -> "js-" + base;
+                case "python", "py" -> "python-" + base;
+                default -> base;
+            };
             spans.add(Collections.singleton(style), matcher.end() - matcher.start());
             lastEnd = matcher.end();
         }

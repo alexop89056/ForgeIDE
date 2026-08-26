@@ -17,22 +17,37 @@
 .tab-pane .tab-content-area { -fx-background-color: #11161d; }
 .tab { -fx-background-color: #18212b; -fx-padding: 8 18; }
 .tab:selected { -fx-background-color: #263646; }
+.tab:focused, .tab:selected:focused { -fx-focus-color: transparent; -fx-faint-focus-color: transparent; -fx-background-insets: 0; }
+.tab-pane:focused { -fx-focus-color: transparent; -fx-faint-focus-color: transparent; }
+.tab-pane:focused > .tab-header-area > .headers-region > .tab:selected:focused { -fx-background-color: #263646; -fx-background-insets: 0; -fx-border-color: transparent; }
+.tab-pane:focused > .tab-header-area > .headers-region > .tab:focused { -fx-focus-color: transparent; -fx-faint-focus-color: transparent; }
 .tab .tab-label { -fx-text-fill: #c8d3dd; }
 .text-area { -fx-background-color: #11161d; -fx-control-inner-background: #11161d; -fx-text-fill: #dbe5ee; -fx-highlight-fill: #315f82; -fx-border-color: transparent; }
 .text-area .content { -fx-background-color: #11161d; }
 .code-area, .code-area .content, .styled-text-area { -fx-background-color: #11161d; -fx-text-fill: #dbe5ee; }
 .styled-text-area .text { -fx-fill: #dbe5ee; }
+.styled-text-area .paragraph-box.current-line { -fx-background-color: #182632; }
 .styled-text-area .keyword { -fx-fill: #c792ea; }
 .styled-text-area .string { -fx-fill: #c3e88d; }
 .styled-text-area .comment { -fx-fill: #6a8496; }
 .styled-text-area .number { -fx-fill: #f78c6c; }
 .styled-text-area .annotation { -fx-fill: #ffcb6b; }
+.styled-text-area .caret { -rtfx-blink-rate: 500ms; -fx-stroke: #dbe5ee; -fx-stroke-width: 1.4; }
 .keyword { -fx-fill: #c792ea; }
 .string { -fx-fill: #c3e88d; }
 .comment { -fx-fill: #6a8496; }
 .number { -fx-fill: #f78c6c; }
 .annotation { -fx-fill: #ffcb6b; }
+.styled-text-area .java-keyword { -fx-fill: #ff79c6; }
+.styled-text-area .java-string { -fx-fill: #f1fa8c; }
+.styled-text-area .js-keyword { -fx-fill: #82aaff; }
+.styled-text-area .js-string { -fx-fill: #c3e88d; }
+.styled-text-area .python-keyword { -fx-fill: #c792ea; }
+.styled-text-area .python-string { -fx-fill: #ecc48d; }
+.styled-text-area .js-comment, .styled-text-area .python-comment, .styled-text-area .java-comment { -fx-fill: #6a8496; }
 .line-numbers { -fx-pref-width: 52; -fx-background-color: #151d25; -fx-control-inner-background: #151d25; -fx-text-fill: #657789; -fx-alignment: top-right; -fx-padding: 8 10; }
 .line-numbers .content { -fx-background-color: #151d25; }
+.line-numbers .scroll-bar:vertical, .line-numbers .scroll-bar:horizontal, .line-numbers .corner, .line-numbers .increment-button, .line-numbers .decrement-button { -fx-opacity: 0; -fx-pref-width: 0; -fx-pref-height: 0; -fx-background-color: transparent; }
+.line-numbers .corner { -fx-background-color: transparent; }
 .status-bar { -fx-background-color: #18212b; -fx-border-color: #2a3947 transparent transparent transparent; }
 .status-bar .label { -fx-text-fill: #8fa2b3; -fx-font-size: 12px; }

@@ -1,6 +1,7 @@
 package dev.forgeide.editor;
 
 import javafx.scene.control.*;
+import javafx.scene.control.TabPane.TabClosingPolicy;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
@@ -8,10 +9,13 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Consumer;
 
 public final class EditorTabs extends TabPane {
     private final Consumer<String> onStatus;
+    private final List<Path> recent = new ArrayList<>();
 
     public EditorTabs(Consumer<String> onStatus) {
         this.onStatus = onStatus;
@@ -21,7 +25,7 @@ public final class EditorTabs extends TabPane {
 
     public void newDocument() {
         EditorTab editor = new EditorTab(null, "");
-        getTabs().add(editor);
+        register(editor);
         getSelectionModel().select(editor);
     }
 
@@ -35,12 +39,16 @@ public final class EditorTabs extends TabPane {
     public void openPath(Path path) {
         try {
             EditorTab editor = new EditorTab(path, Files.readString(path));
-            getTabs().add(editor);
+            register(editor);
+            recent.remove(path); recent.add(0, path);
+            if (recent.size() > 10) recent.remove(10);
             getSelectionModel().select(editor);
         } catch (IOException error) {
             showError("Could not open file", error);
         }
     }
+
+    public List<Path> recentFiles() { return List.copyOf(recent); }
 
     public void saveCurrent(Stage owner, boolean saveAs) {
         current().ifPresent(editor -> {
@@ -63,15 +71,23 @@ public final class EditorTabs extends TabPane {
     }
 
     public void closeCurrent() {
-        if (getTabs().size() > 1) getTabs().remove(getSelectionModel().getSelectedItem());
+        if (getTabs().size() > 1) current().filter(EditorTab::confirmClose).ifPresent(getTabs()::remove);
     }
 
     public Optional<EditorTab> current() {
         return Optional.ofNullable(getSelectionModel().getSelectedItem()).map(tab -> (EditorTab) tab);
     }
 
+    private void register(EditorTab editor) {
+        editor.setCaretListener(ignored -> updateStatus());
+        editor.setOnCloseRequest(event -> {
+            if (!editor.confirmClose()) event.consume();
+        });
+        getTabs().add(editor);
+    }
+
     private void updateStatus() {
-        current().ifPresent(editor -> onStatus.accept(editor.getPath() == null ? "Untitled" : editor.getPath().toString()));
+        current().ifPresent(editor -> onStatus.accept((editor.getPath() == null ? "Untitled" : editor.getPath().toString()) + "   ·   " + editor.caretStatus()));
     }
 
     private void showError(String message, Exception error) {
