@@ -23,7 +23,7 @@ public final class FileExplorer extends VBox {
     public FileExplorer(Consumer<Path> onFileOpen) {
         this.onFileOpen = onFileOpen;
         getStyleClass().add("explorer");
-        setPadding(new Insets(12));
+        setPadding(new Insets(12, 0, 12, 0));
         setSpacing(12);
         setPrefWidth(245);
 

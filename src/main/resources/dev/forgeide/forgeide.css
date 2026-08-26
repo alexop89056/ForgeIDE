@@ -22,7 +22,7 @@
 .explorer .button { -fx-background-color: #263646; -fx-text-fill: #d8e0e8; -fx-border-color: #3a4c5d; -fx-background-radius: 4; -fx-border-radius: 4; -fx-padding: 6 9; -fx-cursor: hand; }
 .explorer .button:hover { -fx-background-color: #31506a; }
 .tree-view { -fx-background-color: #151d25; -fx-control-inner-background: #151d25; -fx-border-color: transparent; -fx-padding: 3 0; }
-.tree-cell { -fx-background-color: transparent; -fx-text-fill: #c8d3dd; -fx-font-size: 12px; -fx-padding: 5 4; }
+.tree-cell { -fx-background-color: transparent; -fx-text-fill: #c8d3dd; -fx-font-size: 12px; -fx-padding: 5 0; }
 .tree-cell:hover { -fx-background-color: #202f3d; }
 .tree-cell:selected { -fx-background-color: #29455b; -fx-text-fill: white; }
 .tree-view .scroll-bar:vertical, .styled-text-area .scroll-bar:vertical, .text-area .scroll-bar:vertical { -fx-pref-width: 8; -fx-background-color: #151d25; }
