@@ -55,6 +55,7 @@ public final class EditorTab extends Tab {
             updateCurrentLine();
             caretListener.accept(this);
         });
+        text.estimatedScrollYProperty().addListener((obs, old, value) -> lineNumbers.setTranslateY(-value.doubleValue()));
         highlightDelay.setOnFinished(event -> applyHighlighting());
         refreshLineNumbers();
         updateCurrentLine();
