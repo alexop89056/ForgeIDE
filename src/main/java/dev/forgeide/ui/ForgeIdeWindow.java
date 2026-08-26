@@ -41,6 +41,7 @@ public final class ForgeIdeWindow {
         stage.setScene(scene);
         stage.setOnCloseRequest(event -> {
             if (tabs.hasDirtyTabs() && !tabs.confirmCloseAll()) event.consume();
+            else tabs.close();
         });
         stage.show();
         tabs.current().ifPresent(editor -> editor.focusEditor());

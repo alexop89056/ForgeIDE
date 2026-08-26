@@ -36,6 +36,7 @@ dev.forgeide
 │   ├── EditorTabs.java            # tab lifecycle and file operations
 │   └── EditorTab.java             # one document, line numbers and editor state
 ├── explorer/FileExplorer.java     # workspace tree and file navigation
+├── lsp/                           # optional language-server process management
 └── syntax/SyntaxHighlighter.java  # language-agnostic token styling rules
 ```
 
@@ -57,3 +58,4 @@ The Gradle JavaFX plugin downloads the platform-specific JavaFX modules automati
 - Find and replace
 - Recent projects and session restore
 - Theme and editor preferences
+- Language Server Protocol: completion, diagnostics, definitions, hover and rename

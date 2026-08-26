@@ -1,5 +1,6 @@
 package dev.forgeide.editor;
 
+import dev.forgeide.lsp.LanguageServerManager;
 import javafx.scene.control.*;
 import javafx.scene.control.TabPane.TabClosingPolicy;
 import javafx.stage.FileChooser;
@@ -13,9 +14,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-public final class EditorTabs extends TabPane {
+public final class EditorTabs extends TabPane implements AutoCloseable {
     private final Consumer<String> onStatus;
     private final List<Path> recent = new ArrayList<>();
+    private final LanguageServerManager languageServers = new LanguageServerManager();
 
     public EditorTabs(Consumer<String> onStatus) {
         this.onStatus = onStatus;
@@ -42,6 +44,8 @@ public final class EditorTabs extends TabPane {
             register(editor);
             recent.remove(path); recent.add(0, path);
             if (recent.size() > 10) recent.remove(10);
+            String extension = extension(path);
+            languageServers.start(extension, path.getParent() == null ? path.toAbsolutePath().getParent() : path.getParent());
             getSelectionModel().select(editor);
         } catch (IOException error) {
             showError("Could not open file", error);
@@ -49,6 +53,12 @@ public final class EditorTabs extends TabPane {
     }
 
     public List<Path> recentFiles() { return List.copyOf(recent); }
+
+    private static String extension(Path file) {
+        String name = file.getFileName().toString();
+        int dot = name.lastIndexOf('.');
+        return dot < 0 ? "" : name.substring(dot + 1);
+    }
 
     public void saveCurrent(Stage owner, boolean saveAs) {
         current().ifPresent(editor -> {
@@ -119,4 +129,6 @@ public final class EditorTabs extends TabPane {
     private void showError(String message, Exception error) {
         new Alert(Alert.AlertType.ERROR, message + ": " + error.getMessage(), ButtonType.OK).showAndWait();
     }
+
+    @Override public void close() { languageServers.close(); }
 }
