@@ -1,5 +1,6 @@
 package dev.forgeide.explorer;
 
+import dev.forgeide.preferences.WorkspacePreferences;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseButton;
@@ -17,6 +18,7 @@ import java.util.function.Consumer;
 public final class FileExplorer extends VBox {
     private final TreeView<Path> tree = new TreeView<>();
     private final Consumer<Path> onFileOpen;
+    private final WorkspacePreferences preferences = new WorkspacePreferences();
 
     public FileExplorer(Consumer<Path> onFileOpen) {
         this.onFileOpen = onFileOpen;
@@ -40,6 +42,7 @@ public final class FileExplorer extends VBox {
         refresh.setOnAction(event -> refresh());
 
         tree.setShowRoot(true);
+        preferences.lastWorkspace().ifPresent(this::setWorkspace);
         tree.setCellFactory(view -> new TreeCell<>() {
             @Override protected void updateItem(Path path, boolean empty) {
                 super.updateItem(path, empty);
@@ -53,6 +56,7 @@ public final class FileExplorer extends VBox {
             }
         });
         getChildren().addAll(title, chooseFolder, newFile, refresh, tree);
+        if (tree.getRoot() != null) { newFile.setDisable(false); refresh.setDisable(false); }
         VBox.setVgrow(tree, Priority.ALWAYS);
     }
 
@@ -64,6 +68,7 @@ public final class FileExplorer extends VBox {
         var selected = chooser.showDialog(owner);
         if (selected != null) {
             setWorkspace(selected.toPath());
+            preferences.rememberWorkspace(selected.toPath());
             getChildren().stream().filter(node -> node instanceof Button button && button.getText().equals("New file"))
                     .forEach(node -> node.setDisable(false));
             getChildren().stream().filter(node -> node instanceof Button button && button.getText().equals("Refresh"))
