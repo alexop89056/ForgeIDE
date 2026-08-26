@@ -29,14 +29,6 @@ public final class FileExplorer extends VBox {
 
         Label title = new Label("EXPLORER");
         title.getStyleClass().add("explorer-title");
-        Button newFile = new Button("New file");
-        newFile.setMaxWidth(Double.MAX_VALUE);
-        newFile.setDisable(true);
-        newFile.setOnAction(event -> createFile());
-        Button refresh = new Button("Refresh");
-        refresh.setMaxWidth(Double.MAX_VALUE);
-        refresh.setDisable(true);
-        refresh.setOnAction(event -> refresh());
 
         tree.setShowRoot(true);
         preferences.lastWorkspace().ifPresent(this::setWorkspace);
@@ -47,13 +39,12 @@ public final class FileExplorer extends VBox {
             }
         });
         tree.setOnMouseClicked(event -> {
-            if (event.getButton() == MouseButton.PRIMARY && event.getClickCount() == 2) {
+            if (event.getButton() == MouseButton.PRIMARY && event.getClickCount() == 1) {
                 TreeItem<Path> selected = tree.getSelectionModel().getSelectedItem();
                 if (selected != null && selected.getValue() != null && Files.isRegularFile(selected.getValue())) onFileOpen.accept(selected.getValue());
             }
         });
-        getChildren().addAll(title, newFile, refresh, tree);
-        if (tree.getRoot() != null) { newFile.setDisable(false); refresh.setDisable(false); }
+        getChildren().addAll(title, tree);
         VBox.setVgrow(tree, Priority.ALWAYS);
     }
 
@@ -66,10 +57,6 @@ public final class FileExplorer extends VBox {
         if (selected != null) {
             setWorkspace(selected.toPath());
             preferences.rememberWorkspace(selected.toPath());
-            getChildren().stream().filter(node -> node instanceof Button button && button.getText().equals("New file"))
-                    .forEach(node -> node.setDisable(false));
-            getChildren().stream().filter(node -> node instanceof Button button && button.getText().equals("Refresh"))
-                    .forEach(node -> node.setDisable(false));
         }
     }
 
@@ -81,14 +68,14 @@ public final class FileExplorer extends VBox {
         tree.setRoot(root);
     }
 
-    private void refresh() {
+    public void refresh() {
         if (tree.getRoot() == null) return;
         Path rootPath = tree.getRoot().getValue();
         tree.setRoot(treeItem(rootPath));
         tree.getRoot().setExpanded(true);
     }
 
-    private void createFile() {
+    public void createFile() {
         if (tree.getRoot() == null || !Files.isDirectory(tree.getRoot().getValue())) return;
         TextInputDialog dialog = new TextInputDialog("untitled.txt");
         dialog.setTitle("New file");

@@ -56,6 +56,8 @@ public final class ForgeIdeWindow {
         file.getItems().addAll(
                 item("New", new KeyCodeCombination(KeyCode.N, KeyCombination.SHORTCUT_DOWN), e -> tabs.newDocument()),
                 item("Open folder…", null, e -> explorer.openFolder(stage)),
+                item("New file", null, e -> explorer.createFile()),
+                item("Refresh explorer", null, e -> explorer.refresh()),
                 item("Open…", new KeyCodeCombination(KeyCode.O, KeyCombination.SHORTCUT_DOWN), e -> { tabs.openDocument(stage); refreshRecent(); }),
                 new SeparatorMenuItem(),
                 item("Save", new KeyCodeCombination(KeyCode.S, KeyCombination.SHORTCUT_DOWN), e -> tabs.saveCurrent(stage, false)),
