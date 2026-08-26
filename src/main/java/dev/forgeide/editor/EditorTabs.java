@@ -5,6 +5,7 @@ import dev.forgeide.preferences.WorkspacePreferences;
 import javafx.scene.control.*;
 import javafx.application.Platform;
 import javafx.scene.control.TabPane.TabClosingPolicy;
+import javafx.scene.control.TabPane.TabDragPolicy;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
@@ -25,6 +26,7 @@ public final class EditorTabs extends TabPane implements AutoCloseable {
     public EditorTabs(Consumer<String> onStatus) {
         this.onStatus = onStatus;
         setTabClosingPolicy(TabClosingPolicy.ALL_TABS);
+        setTabDragPolicy(TabDragPolicy.REORDER);
         getSelectionModel().selectedItemProperty().addListener((obs, oldTab, newTab) -> updateStatus());
     }
 
@@ -112,6 +114,18 @@ public final class EditorTabs extends TabPane implements AutoCloseable {
         if (getTabs().size() > 1) current().filter(EditorTab::confirmClose).ifPresent(editor -> { getTabs().remove(editor); rememberOpenFiles(); });
     }
 
+    public void closeOthers(EditorTab keep) {
+        for (EditorTab editor : getTabs().stream().filter(EditorTab.class::isInstance).map(EditorTab.class::cast).toList()) {
+            if (editor != keep && editor.confirmClose()) getTabs().remove(editor);
+        }
+        getSelectionModel().select(keep); rememberOpenFiles();
+    }
+
+    public void closeAll() {
+        if (!confirmCloseAll()) return;
+        getTabs().clear(); rememberOpenFiles();
+    }
+
     public boolean confirmCloseAll() {
         for (Tab tab : List.copyOf(getTabs())) {
             if (tab instanceof EditorTab editor && !editor.confirmClose()) return false;
@@ -141,6 +155,13 @@ public final class EditorTabs extends TabPane implements AutoCloseable {
         editor.setOnCloseRequest(event -> {
             if (!editor.confirmClose()) event.consume(); else Platform.runLater(this::rememberOpenFiles);
         });
+        MenuItem close = new MenuItem("Close");
+        close.setOnAction(event -> { if (editor.confirmClose()) getTabs().remove(editor); });
+        MenuItem closeOthers = new MenuItem("Close others");
+        closeOthers.setOnAction(event -> closeOthers(editor));
+        MenuItem closeAll = new MenuItem("Close all");
+        closeAll.setOnAction(event -> closeAll());
+        editor.setContextMenu(new ContextMenu(close, closeOthers, closeAll));
         getTabs().add(editor);
     }
 
