@@ -59,3 +59,4 @@ The Gradle JavaFX plugin downloads the platform-specific JavaFX modules automati
 - Recent projects and session restore
 - Theme and editor preferences
 - Language Server Protocol: completion, diagnostics, definitions, hover and rename
+- JSON-RPC stdio transport with LSP initialization handshake
