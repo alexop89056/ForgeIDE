@@ -70,8 +70,34 @@ public final class EditorTabs extends TabPane {
         });
     }
 
+    public void saveAll(Stage owner) {
+        for (Tab tab : List.copyOf(getTabs())) {
+            if (tab instanceof EditorTab editor && editor.isDirty()) {
+                Path target = editor.getPath();
+                if (target == null) {
+                    FileChooser chooser = new FileChooser(); chooser.setTitle("Save file");
+                    var selected = chooser.showSaveDialog(owner); if (selected == null) continue; target = selected.toPath();
+                }
+                try { Files.writeString(target, editor.getDocumentText()); editor.saveTo(target); }
+                catch (IOException error) { showError("Could not save file", error); }
+            }
+        }
+    }
+
     public void closeCurrent() {
         if (getTabs().size() > 1) current().filter(EditorTab::confirmClose).ifPresent(getTabs()::remove);
+    }
+
+    public boolean confirmCloseAll() {
+        for (Tab tab : List.copyOf(getTabs())) {
+            if (tab instanceof EditorTab editor && !editor.confirmClose()) return false;
+        }
+        return true;
+    }
+
+    public boolean hasDirtyTabs() {
+        return getTabs().stream().filter(EditorTab.class::isInstance)
+                .map(EditorTab.class::cast).anyMatch(EditorTab::isDirty);
     }
 
     public Optional<EditorTab> current() {

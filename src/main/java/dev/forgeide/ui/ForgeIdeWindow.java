@@ -39,6 +39,9 @@ public final class ForgeIdeWindow {
         scene.getStylesheets().add(getClass().getResource("/dev/forgeide/forgeide.css").toExternalForm());
         stage.setTitle("ForgeIDE");
         stage.setScene(scene);
+        stage.setOnCloseRequest(event -> {
+            if (tabs.hasDirtyTabs() && !tabs.confirmCloseAll()) event.consume();
+        });
         stage.show();
         tabs.current().ifPresent(editor -> editor.focusEditor());
     }
@@ -50,6 +53,7 @@ public final class ForgeIdeWindow {
                 item("Open…", new KeyCodeCombination(KeyCode.O, KeyCombination.SHORTCUT_DOWN), e -> { tabs.openDocument(stage); refreshRecent(); }),
                 new SeparatorMenuItem(),
                 item("Save", new KeyCodeCombination(KeyCode.S, KeyCombination.SHORTCUT_DOWN), e -> tabs.saveCurrent(stage, false)),
+                item("Save all", new KeyCodeCombination(KeyCode.S, KeyCombination.SHORTCUT_DOWN, KeyCombination.SHIFT_DOWN), e -> tabs.saveAll(stage)),
                 item("Save as…", null, e -> tabs.saveCurrent(stage, true)),
                 new SeparatorMenuItem(),
                 item("Close tab", new KeyCodeCombination(KeyCode.W, KeyCombination.SHORTCUT_DOWN), e -> tabs.closeCurrent()),
