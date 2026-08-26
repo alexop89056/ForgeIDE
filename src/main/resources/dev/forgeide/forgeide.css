@@ -28,9 +28,9 @@
 .tab-pane:focused > .tab-header-area > .headers-region > .tab:selected:focused { -fx-background-color: #263646; -fx-background-insets: 0; -fx-border-color: transparent; }
 .tab-pane:focused > .tab-header-area > .headers-region > .tab:focused { -fx-focus-color: transparent; -fx-faint-focus-color: transparent; }
 .tab .tab-label { -fx-text-fill: #c8d3dd; }
-.text-area { -fx-background-color: #11161d; -fx-control-inner-background: #11161d; -fx-text-fill: #dbe5ee; -fx-highlight-fill: #315f82; -fx-border-color: transparent; }
+.text-area { -fx-background-color: #11161d; -fx-control-inner-background: #11161d; -fx-text-fill: #dbe5ee; -fx-highlight-fill: #24445b; -fx-border-color: transparent; }
 .text-area .content { -fx-background-color: #11161d; }
-.code-area, .code-area .content, .styled-text-area { -fx-background-color: #11161d; -fx-text-fill: #dbe5ee; }
+.code-area, .code-area .content, .styled-text-area { -fx-background-color: #11161d; -fx-text-fill: #dbe5ee; -rtfx-selection-fill: #24445b; }
 .styled-text-area .text { -fx-fill: #dbe5ee; }
 .styled-text-area .paragraph-box.current-line { -fx-background-color: #182632; }
 .styled-text-area .keyword { -fx-fill: #c792ea; }
