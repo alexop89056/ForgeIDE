@@ -3,6 +3,7 @@ package dev.forgeide.editor;
 import dev.forgeide.lsp.LanguageServerManager;
 import dev.forgeide.preferences.WorkspacePreferences;
 import javafx.scene.control.*;
+import javafx.application.Platform;
 import javafx.scene.control.TabPane.TabClosingPolicy;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -31,6 +32,7 @@ public final class EditorTabs extends TabPane implements AutoCloseable {
         EditorTab editor = new EditorTab(null, "");
         register(editor);
         getSelectionModel().select(editor);
+        rememberOpenFiles();
     }
 
     public void openDocument(Stage owner) {
@@ -50,6 +52,7 @@ public final class EditorTabs extends TabPane implements AutoCloseable {
             languageServers.start(extension, path.getParent() == null ? path.toAbsolutePath().getParent() : path.getParent());
             languageServers.didOpen(path, languageId(extension), editor.getDocumentText());
             getSelectionModel().select(editor);
+            rememberOpenFiles();
         } catch (IOException error) {
             showError("Could not open file", error);
         }
@@ -98,7 +101,7 @@ public final class EditorTabs extends TabPane implements AutoCloseable {
     }
 
     public void closeCurrent() {
-        if (getTabs().size() > 1) current().filter(EditorTab::confirmClose).ifPresent(getTabs()::remove);
+        if (getTabs().size() > 1) current().filter(EditorTab::confirmClose).ifPresent(editor -> { getTabs().remove(editor); rememberOpenFiles(); });
     }
 
     public boolean confirmCloseAll() {
@@ -128,7 +131,7 @@ public final class EditorTabs extends TabPane implements AutoCloseable {
             if (editor.getPath() != null) languageServers.didChange(editor.getPath(), text);
         });
         editor.setOnCloseRequest(event -> {
-            if (!editor.confirmClose()) event.consume();
+            if (!editor.confirmClose()) event.consume(); else Platform.runLater(this::rememberOpenFiles);
         });
         getTabs().add(editor);
     }
@@ -138,7 +141,15 @@ public final class EditorTabs extends TabPane implements AutoCloseable {
     }
 
     private void updateStatus() {
-        current().ifPresent(editor -> onStatus.accept((editor.getPath() == null ? "Untitled" : editor.getPath().toString()) + "   ·   " + editor.caretStatus()));
+        current().ifPresent(editor -> onStatus.accept((editor.getPath() == null ? "Untitled" : compactPath(editor.getPath())) + "   ·   " + editor.caretStatus()));
+    }
+
+    private static String compactPath(Path path) {
+        Path file = path.getFileName();
+        Path parent = path.getParent();
+        if (parent == null) return file == null ? path.toString() : file.toString();
+        Path project = parent.getFileName();
+        return (project == null ? "…" : project.toString()) + "/" + (file == null ? "" : file);
     }
 
     private void showError(String message, Exception error) {
