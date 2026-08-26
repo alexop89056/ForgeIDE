@@ -45,8 +45,12 @@
 .styled-text-area .python-keyword { -fx-fill: #c792ea; }
 .styled-text-area .python-string { -fx-fill: #ecc48d; }
 .styled-text-area .js-comment, .styled-text-area .python-comment, .styled-text-area .java-comment { -fx-fill: #6a8496; }
-.line-numbers { -fx-pref-width: 52; -fx-background-color: #151d25; -fx-control-inner-background: #151d25; -fx-text-fill: #657789; -fx-alignment: top-right; -fx-padding: 8 10; }
+.line-numbers { -fx-pref-width: 52; -fx-min-width: 52; -fx-background-color: #151d25; -fx-text-fill: #657789; -fx-alignment: top-right; -fx-padding: 8 10; }
 .line-numbers .content { -fx-background-color: #151d25; }
+.line-numbers .viewport { -fx-background-color: #151d25; }
+.line-numbers .scroll-pane { -fx-background-color: #151d25; -fx-background-insets: 0; -fx-padding: 0; }
+.line-numbers .scroll-pane .viewport { -fx-background-color: #151d25; }
+.line-numbers .scroll-pane .corner { -fx-background-color: #151d25; }
 .line-numbers .scroll-bar:vertical, .line-numbers .scroll-bar:horizontal, .line-numbers .corner, .line-numbers .increment-button, .line-numbers .decrement-button { -fx-opacity: 0; -fx-pref-width: 0; -fx-pref-height: 0; -fx-background-color: transparent; }
 .line-numbers .corner { -fx-background-color: transparent; }
 .status-bar { -fx-background-color: #18212b; -fx-border-color: #2a3947 transparent transparent transparent; }

@@ -6,7 +6,7 @@ import javafx.geometry.Insets;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Tab;
-import javafx.scene.control.TextArea;
+import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.util.Duration;
@@ -21,7 +21,7 @@ import java.util.stream.IntStream;
 
 public final class EditorTab extends Tab {
     private final CodeArea text = new CodeArea();
-    private final TextArea lineNumbers = new TextArea("1");
+    private final Label lineNumbers = new Label("1");
     private final PauseTransition highlightDelay = new PauseTransition(Duration.millis(140));
     private Path path;
     private boolean dirty;
@@ -34,7 +34,6 @@ public final class EditorTab extends Tab {
         text.replaceText(content);
         text.getStyleClass().add("code-area");
         text.setStyle("-fx-font-family: 'JetBrains Mono'; -fx-font-size: 14px;");
-        lineNumbers.setEditable(false);
         lineNumbers.setFocusTraversable(false);
         lineNumbers.setMouseTransparent(true);
         lineNumbers.getStyleClass().add("line-numbers");

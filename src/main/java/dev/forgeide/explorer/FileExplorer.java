@@ -32,9 +32,11 @@ public final class FileExplorer extends VBox {
         chooseFolder.setOnAction(event -> chooseFolder(getScene().getWindow()));
         Button newFile = new Button("New file");
         newFile.setMaxWidth(Double.MAX_VALUE);
+        newFile.setDisable(true);
         newFile.setOnAction(event -> createFile());
         Button refresh = new Button("Refresh");
         refresh.setMaxWidth(Double.MAX_VALUE);
+        refresh.setDisable(true);
         refresh.setOnAction(event -> refresh());
 
         tree.setShowRoot(true);
@@ -50,7 +52,6 @@ public final class FileExplorer extends VBox {
                 if (selected != null && selected.getValue() != null && Files.isRegularFile(selected.getValue())) onFileOpen.accept(selected.getValue());
             }
         });
-        setWorkspace(Path.of(System.getProperty("user.dir")).toAbsolutePath().normalize());
         getChildren().addAll(title, chooseFolder, newFile, refresh, tree);
         VBox.setVgrow(tree, Priority.ALWAYS);
     }
@@ -61,7 +62,13 @@ public final class FileExplorer extends VBox {
         chooser.setTitle("Choose workspace folder");
         if (Files.isDirectory(current)) chooser.setInitialDirectory(current.toFile());
         var selected = chooser.showDialog(owner);
-        if (selected != null) setWorkspace(selected.toPath());
+        if (selected != null) {
+            setWorkspace(selected.toPath());
+            getChildren().stream().filter(node -> node instanceof Button button && button.getText().equals("New file"))
+                    .forEach(node -> node.setDisable(false));
+            getChildren().stream().filter(node -> node instanceof Button button && button.getText().equals("Refresh"))
+                    .forEach(node -> node.setDisable(false));
+        }
     }
 
     private void setWorkspace(Path path) {
