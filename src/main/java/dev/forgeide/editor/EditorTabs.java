@@ -1,6 +1,7 @@
 package dev.forgeide.editor;
 
 import dev.forgeide.lsp.LanguageServerManager;
+import dev.forgeide.preferences.WorkspacePreferences;
 import javafx.scene.control.*;
 import javafx.scene.control.TabPane.TabClosingPolicy;
 import javafx.stage.FileChooser;
@@ -18,6 +19,7 @@ public final class EditorTabs extends TabPane implements AutoCloseable {
     private final Consumer<String> onStatus;
     private final List<Path> recent = new ArrayList<>();
     private final LanguageServerManager languageServers = new LanguageServerManager();
+    private final WorkspacePreferences preferences = new WorkspacePreferences();
 
     public EditorTabs(Consumer<String> onStatus) {
         this.onStatus = onStatus;
@@ -111,6 +113,11 @@ public final class EditorTabs extends TabPane implements AutoCloseable {
                 .map(EditorTab.class::cast).anyMatch(EditorTab::isDirty);
     }
 
+    public void rememberOpenFiles() {
+        preferences.rememberOpenFiles(getTabs().stream().filter(EditorTab.class::isInstance).map(EditorTab.class::cast)
+                .map(EditorTab::getPath).filter(java.util.Objects::nonNull).toList());
+    }
+
     public Optional<EditorTab> current() {
         return Optional.ofNullable(getSelectionModel().getSelectedItem()).map(tab -> (EditorTab) tab);
     }
@@ -138,5 +145,5 @@ public final class EditorTabs extends TabPane implements AutoCloseable {
         new Alert(Alert.AlertType.ERROR, message + ": " + error.getMessage(), ButtonType.OK).showAndWait();
     }
 
-    @Override public void close() { languageServers.close(); }
+    @Override public void close() { rememberOpenFiles(); languageServers.close(); }
 }

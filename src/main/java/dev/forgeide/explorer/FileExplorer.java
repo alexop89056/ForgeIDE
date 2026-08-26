@@ -23,12 +23,10 @@ public final class FileExplorer extends VBox {
     public FileExplorer(Consumer<Path> onFileOpen) {
         this.onFileOpen = onFileOpen;
         getStyleClass().add("explorer");
-        setPadding(new Insets(12, 0, 12, 0));
-        setSpacing(12);
+        setPadding(Insets.EMPTY);
+        setSpacing(0);
         setPrefWidth(245);
 
-        Label title = new Label("EXPLORER");
-        title.getStyleClass().add("explorer-title");
 
         tree.setShowRoot(true);
         preferences.lastWorkspace().ifPresent(this::setWorkspace);
@@ -45,7 +43,7 @@ public final class FileExplorer extends VBox {
                 if (selected != null && selected.getValue() != null && Files.isRegularFile(selected.getValue())) onFileOpen.accept(selected.getValue());
             }
         });
-        getChildren().addAll(title, tree);
+        getChildren().add(tree);
         VBox.setVgrow(tree, Priority.ALWAYS);
     }
 

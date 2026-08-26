@@ -1,6 +1,7 @@
 package dev.forgeide.ui;
 
 import dev.forgeide.editor.EditorTabs;
+import dev.forgeide.editor.EditorTab;
 import dev.forgeide.explorer.FileExplorer;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
@@ -12,6 +13,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import dev.forgeide.preferences.WorkspacePreferences;
 import javafx.scene.image.Image;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
@@ -25,6 +27,7 @@ public final class ForgeIdeWindow {
     private final Label status = new Label("Ready");
     private final EditorTabs tabs = new EditorTabs(status::setText);
     private final FileExplorer explorer = new FileExplorer(tabs::openPath);
+    private final WorkspacePreferences preferences = new WorkspacePreferences();
     private final Menu recentMenu = new Menu("Recent files");
 
     public ForgeIdeWindow(Stage stage) {
@@ -39,7 +42,8 @@ public final class ForgeIdeWindow {
         root.setLeft(explorer);
         root.setCenter(tabs);
         root.setBottom(createStatusBar());
-        tabs.newDocument();
+        var files = preferences.openFiles();
+        if (files.isEmpty()) tabs.newDocument(); else files.forEach(tabs::openPath);
 
         Scene scene = new Scene(root, 1100, 720);
         scene.getStylesheets().add(getClass().getResource("/dev/forgeide/forgeide.css").toExternalForm());
@@ -116,6 +120,9 @@ public final class ForgeIdeWindow {
         edit.getItems().addAll(
                 item("Undo", new KeyCodeCombination(KeyCode.Z, KeyCombination.SHORTCUT_DOWN), e -> tabs.current().ifPresent(editor -> editor.undo())),
                 item("Redo", new KeyCodeCombination(KeyCode.Z, KeyCombination.SHORTCUT_DOWN, KeyCombination.SHIFT_DOWN), e -> tabs.current().ifPresent(editor -> editor.redo())),
+                item("Increase font", new KeyCodeCombination(KeyCode.PLUS, KeyCombination.SHORTCUT_DOWN), e -> tabs.current().ifPresent(EditorTab::increaseFont)),
+                item("Decrease font", new KeyCodeCombination(KeyCode.MINUS, KeyCombination.SHORTCUT_DOWN), e -> tabs.current().ifPresent(EditorTab::decreaseFont)),
+                item("Reset font", new KeyCodeCombination(KeyCode.DIGIT0, KeyCombination.SHORTCUT_DOWN), e -> tabs.current().ifPresent(EditorTab::resetFont)),
                 new SeparatorMenuItem(),
                 item("Find", new KeyCodeCombination(KeyCode.F, KeyCombination.SHORTCUT_DOWN), e -> find()),
                 item("Replace", new KeyCodeCombination(KeyCode.H, KeyCombination.SHORTCUT_DOWN), e -> replace()),

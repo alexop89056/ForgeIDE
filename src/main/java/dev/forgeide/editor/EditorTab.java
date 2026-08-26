@@ -29,12 +29,13 @@ public final class EditorTab extends Tab {
     private int highlightedParagraph = -1;
     private Consumer<EditorTab> caretListener = ignored -> { };
     private Consumer<String> documentChangeListener = ignored -> { };
+    private double fontSize = 14;
 
     public EditorTab(Path path, String content) {
         this.path = path;
         text.replaceText(content);
         text.getStyleClass().add("code-area");
-        text.setStyle("-fx-font-family: 'JetBrains Mono'; -fx-font-size: 14px;");
+        applyFontSize();
         lineNumbers.setFocusTraversable(false);
         lineNumbers.setMouseTransparent(true);
         lineNumbers.getStyleClass().add("line-numbers");
@@ -78,6 +79,9 @@ public final class EditorTab extends Tab {
     public void undo() { text.undo(); }
     public void redo() { text.redo(); }
     public void focusEditor() { text.requestFocus(); }
+    public void increaseFont() { fontSize = Math.min(32, fontSize + 1); applyFontSize(); }
+    public void decreaseFont() { fontSize = Math.max(8, fontSize - 1); applyFontSize(); }
+    public void resetFont() { fontSize = 14; applyFontSize(); }
     public void find(String query) {
         if (query == null || query.isBlank()) return;
         int start = Math.min(text.getCaretPosition() + 1, text.getLength());
@@ -128,6 +132,11 @@ public final class EditorTab extends Tab {
     private void applyHighlighting() {
         String extension = path == null ? "" : extension(path);
         text.setStyleSpans(0, SyntaxHighlighter.highlight(text.getText(), extension));
+    }
+
+    private void applyFontSize() {
+        text.setStyle("-fx-font-family: 'JetBrains Mono'; -fx-font-size: " + fontSize + "px;");
+        lineNumbers.setStyle("-fx-font-family: 'JetBrains Mono'; -fx-font-size: " + fontSize + "px;");
     }
 
     private static String extension(Path file) {
