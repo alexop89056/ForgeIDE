@@ -6,6 +6,8 @@ import com.google.gson.JsonParser;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.Map;
 import java.util.function.Consumer;
 
 /** Small LSP JSON-RPC 2.0 transport using Content-Length framed stdio messages. */
@@ -14,6 +16,7 @@ final class JsonRpcClient implements AutoCloseable {
     private final OutputStream output;
     private final AtomicInteger ids = new AtomicInteger();
     private final Consumer<JsonObject> notifications;
+    private final Map<Integer, Consumer<JsonObject>> responses = new ConcurrentHashMap<>();
     private volatile boolean running = true;
 
     JsonRpcClient(InputStream input, OutputStream output, Consumer<JsonObject> notifications) {
@@ -26,6 +29,11 @@ final class JsonRpcClient implements AutoCloseable {
         int id = ids.incrementAndGet();
         JsonObject message = base(method, params); message.addProperty("id", id); write(message);
         return id;
+    }
+
+    synchronized void request(String method, JsonObject params, Consumer<JsonObject> callback) throws IOException {
+        int id = ids.incrementAndGet(); responses.put(id, callback);
+        JsonObject message = base(method, params); message.addProperty("id", id); write(message);
     }
 
     synchronized void notify(String method, JsonObject params) throws IOException { write(base(method, params)); }
@@ -50,7 +58,9 @@ final class JsonRpcClient implements AutoCloseable {
                 if (readLine() == null) break;
                 byte[] body = input.readNBytes(length); if (body.length != length) break;
                 JsonObject message = JsonParser.parseString(new String(body, StandardCharsets.UTF_8)).getAsJsonObject();
-                if (message.has("method")) notifications.accept(message);
+                Consumer<JsonObject> callback = message.has("id") ? responses.remove(message.get("id").getAsInt()) : null;
+                if (callback != null) callback.accept(message);
+                else if (message.has("method")) notifications.accept(message);
             }
         } catch (Exception ignored) { }
     }

@@ -2,6 +2,7 @@ package dev.forgeide.lsp;
 
 import com.google.gson.JsonObject;
 import java.nio.file.Path;
+import java.util.function.Consumer;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Arrays;
@@ -42,6 +43,13 @@ final class LanguageServerProcess implements AutoCloseable {
         com.google.gson.JsonArray changes = new com.google.gson.JsonArray(); changes.add(change);
         JsonObject params = new JsonObject(); params.add("textDocument", document); params.add("contentChanges", changes);
         rpc.notify("textDocument/didChange", params);
+    }
+
+    void completion(Path path, int line, int character, Consumer<JsonObject> callback) throws IOException {
+        JsonObject position = new JsonObject(); position.addProperty("line", line); position.addProperty("character", character);
+        JsonObject document = new JsonObject(); document.addProperty("uri", path.toUri().toString());
+        JsonObject params = new JsonObject(); params.add("textDocument", document); params.add("position", position);
+        rpc.request("textDocument/completion", params, callback);
     }
 
     @Override public void close() { rpc.close(); process.destroy(); }

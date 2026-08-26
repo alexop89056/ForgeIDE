@@ -11,6 +11,7 @@ import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
+import javafx.scene.image.Image;
 import javafx.scene.layout.GridPane;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -38,6 +39,8 @@ public final class ForgeIdeWindow {
         Scene scene = new Scene(root, 1100, 720);
         scene.getStylesheets().add(getClass().getResource("/dev/forgeide/forgeide.css").toExternalForm());
         stage.setTitle("ForgeIDE");
+        var logo = getClass().getResourceAsStream("/logo.png");
+        if (logo != null) stage.getIcons().add(new Image(logo));
         stage.setScene(scene);
         stage.setOnCloseRequest(event -> {
             if (tabs.hasDirtyTabs() && !tabs.confirmCloseAll()) event.consume();

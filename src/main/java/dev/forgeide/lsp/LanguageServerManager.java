@@ -5,6 +5,8 @@ import java.nio.file.Path;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Consumer;
+import com.google.gson.JsonObject;
 
 /** Discovers and owns optional language-server processes for the current workspace. */
 public final class LanguageServerManager implements AutoCloseable {
@@ -46,6 +48,11 @@ public final class LanguageServerManager implements AutoCloseable {
     public void didChange(Path path, String text) {
         if (process == null) return;
         try { process.didChange(path, ++documentVersion, text); } catch (IOException ignored) { }
+    }
+
+    public void completion(Path path, int line, int character, Consumer<JsonObject> callback) {
+        if (process == null) return;
+        try { process.completion(path, line, character, callback); } catch (IOException ignored) { }
     }
 
     public void stop() {
