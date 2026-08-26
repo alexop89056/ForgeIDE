@@ -43,14 +43,22 @@ public final class EditorTabs extends TabPane implements AutoCloseable {
     }
 
     public void openPath(Path path) {
+        Path normalized = path.toAbsolutePath().normalize();
+        for (Tab tab : getTabs()) {
+            if (tab instanceof EditorTab editor && normalized.equals(editor.getPath())) {
+                getSelectionModel().select(editor);
+                return;
+            }
+        }
         try {
-        EditorTab editor = new EditorTab(path, Files.readString(path));
+        EditorTab editor = new EditorTab(normalized, Files.readString(normalized));
             register(editor);
-            recent.remove(path); recent.add(0, path);
+            recent.remove(normalized); recent.add(0, normalized);
             if (recent.size() > 10) recent.remove(10);
             String extension = extension(path);
-            languageServers.start(extension, path.getParent() == null ? path.toAbsolutePath().getParent() : path.getParent());
-            languageServers.didOpen(path, languageId(extension), editor.getDocumentText());
+            Path workspace = normalized.getParent() == null ? Path.of(System.getProperty("user.dir")) : normalized.getParent();
+            languageServers.start(extension, workspace);
+            languageServers.didOpen(normalized, languageId(extension), editor.getDocumentText());
             getSelectionModel().select(editor);
             rememberOpenFiles();
         } catch (IOException error) {
